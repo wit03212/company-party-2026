@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="th">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101827">
+  <title>Company Party 2026 | Check-in</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">CP</span><div><strong>COMPANY PARTY</strong><small>2026 · EMPLOYEE CHECK-IN</small></div></div>
+    <nav id="staffNav" class="hidden">
+      <button class="nav-btn active" data-page="checkin">Check-in</button>
+      <button class="nav-btn" data-page="summary">Summary</button>
+      <button id="logoutButton" class="nav-btn" type="button">ออกจากระบบ</button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="eyebrow">ANNUAL COMPANY CELEBRATION</div>
+      <h1>ยินดีต้อนรับ<span>.</span></h1>
+      <p>กรอกรหัสพนักงานเพื่อยืนยันการเข้าร่วมงาน</p>
+    </section>
+
+    <section id="loginPanel" class="panel auth-panel">
+      <div class="section-heading"><div><span class="step">STAFF ACCESS</span><h2>เข้าสู่ระบบเจ้าหน้าที่</h2></div></div>
+      <form id="loginForm" class="lookup">
+        <label for="staffPin">รหัสผ่านเจ้าหน้าที่</label>
+        <div class="input-row">
+          <input id="staffPin" type="password" autocomplete="current-password" placeholder="กรอกรหัสผ่าน" required>
+          <button class="primary" type="submit">เข้าสู่ระบบ <span>→</span></button>
+        </div>
+      </form>
+      <div id="loginMessage" class="message" aria-live="polite"></div>
+      <p class="fineprint">ใช้รหัสผ่านที่ผู้ดูแลระบบกำหนดให้เจ้าหน้าที่เท่านั้น</p>
+    </section>
+
+    <section id="checkinPage" class="page">
+      <div class="panel">
+        <div class="section-heading"><div><span class="step">01 / EMPLOYEE</span><h2>ค้นหาข้อมูลพนักงาน</h2></div><span class="live-dot">SYSTEM ONLINE</span></div>
+        <form id="lookupForm" class="lookup">
+          <label for="employeeId">รหัสพนักงาน</label>
+          <div class="input-row"><input id="employeeId" autocomplete="off" placeholder="กรอกรหัสพนักงาน" required><button class="primary" type="submit">ค้นหาข้อมูล <span>→</span></button></div>
+        </form>
+        <div id="lookupMessage" class="message" aria-live="polite"></div>
+        <div id="employeeCard" class="employee-card hidden">
+          <div class="employee-top"><div class="avatar" id="avatar">EMP</div><div><span class="muted-label">EMPLOYEE PROFILE</span><h3 id="employeeName">-</h3><p id="employeeCode">-</p></div><span class="verified">✓ VERIFIED</span></div>
+          <div class="details-grid">
+            <div><small>ตำแหน่ง</small><strong id="position">-</strong></div>
+            <div><small>แผนก</small><strong id="department">-</strong></div>
+            <div><small>สาขา</small><strong id="branch">-</strong></div>
+            <div><small>วันเริ่มงาน</small><strong id="startDate">-</strong></div>
+            <div><small>อายุงาน</small><strong id="tenure">-</strong></div>
+          </div>
+          <div class="divider"></div>
+          <div class="section-heading compact"><div><span class="step">02 / PHOTO</span><h2>ถ่ายภาพยืนยันการเข้าร่วม</h2></div></div>
+          <div class="camera-wrap">
+            <video id="camera" autoplay playsinline class="hidden"></video>
+            <canvas id="photoCanvas" class="hidden"></canvas>
+            <div id="cameraPlaceholder" class="camera-placeholder"><div class="camera-icon">◎</div><strong>ยังไม่ได้เปิดกล้อง</strong><span>กดปุ่มด้านล่างเพื่อเปิดกล้อง</span></div>
+            <img id="photoPreview" class="hidden" alt="ภาพถ่ายสำหรับยืนยันการเข้าร่วม">
+          </div>
+          <div class="actions"><button id="startCamera" class="secondary" type="button">เปิดกล้อง</button><button id="takePhoto" class="secondary" type="button" disabled>ถ่ายภาพ</button><button id="retakePhoto" class="secondary hidden" type="button">ถ่ายใหม่</button></div>
+          <button id="confirmCheckin" class="primary wide" type="button" disabled>ยืนยัน Check-in <span>→</span></button>
+          <p class="fineprint">เมื่อยืนยัน ระบบจะบันทึกเวลาเข้าร่วมและจัดเก็บภาพไว้ใน Google Drive</p>
+        </div>
+      </div>
+      <div class="footer-note">COMPANY PARTY 2026 <span>·</span> MAKE IT A NIGHT TO REMEMBER</div>
+    </section>
+
+    <section id="summaryPage" class="page">
+      <div class="summary-head"><div><span class="step">EVENT OVERVIEW</span><h2>สรุปการเข้าร่วมงาน</h2><p>ภาพรวมสถานะพนักงานและผู้เข้าร่วมงาน</p></div><button id="refreshSummary" class="secondary" type="button">↻ รีเฟรช</button></div>
+      <div class="pin-row"><input id="adminPin" type="password" autocomplete="current-password" placeholder="Admin PIN"><button id="loadSummary" class="primary" type="button">ยืนยันและดูสรุป</button></div>
+      <div id="summaryMessage" class="message" aria-live="polite"></div>
+      <div class="stats">
+        <article class="stat"><small>พนักงานทั้งหมด</small><strong id="totalCount">—</strong><span>EMPLOYEES</span></article>
+        <article class="stat"><small>มาร่วมงาน</small><strong id="presentCount">—</strong><span class="green-text">CHECKED IN</span></article>
+        <article class="stat"><small>ไม่มาร่วมงาน</small><strong id="absentCount">—</strong><span>NOT CHECKED IN</span></article>
+        <article class="stat"><small>อัตราการเข้าร่วม</small><strong id="attendanceRate">—</strong><span>ATTENDANCE RATE</span></article>
+      </div>
+      <div class="panel filters">
+        <div class="section-heading"><div><span class="step">FILTERS</span><h2>เลือกสาขาและแผนก</h2></div></div>
+        <div class="filter-grid"><div><label for="branchFilter">สาขา (เลือกได้หลายรายการ)</label><select id="branchFilter" multiple size="5"></select></div><div><label for="departmentFilter">แผนก (เลือกได้หลายรายการ)</label><select id="departmentFilter" multiple size="5"></select></div></div>
+        <div class="filter-actions"><button id="applyFilters" class="primary" type="button">ใช้ตัวกรอง</button><button id="clearFilters" class="secondary" type="button">ล้างตัวกรอง</button></div>
+      </div>
+      <div class="panel table-panel"><div class="section-heading"><div><span class="step">ATTENDANCE LIST</span><h2>รายชื่อพนักงาน</h2></div><select id="statusFilter"><option value="all">ทั้งหมด</option><option value="present">มาร่วมงาน</option><option value="absent">ไม่มาร่วมงาน</option></select></div><div class="table-scroll"><table><thead><tr><th>รหัส</th><th>ชื่อพนักงาน</th><th>แผนก</th><th>สาขา</th><th>สถานะ</th><th>เวลา</th></tr></thead><tbody id="summaryRows"><tr><td colspan="6" class="empty">เข้าสู่ระบบ Admin เพื่อโหลดข้อมูล</td></tr></tbody></table></div></div>
+    </section>
+  </main>
+  <div id="toast" class="toast" role="status"></div>
+  <iframe name="uploadFrame" id="uploadFrame" class="hidden"></iframe>
+  <form id="uploadForm" class="hidden" method="post" target="uploadFrame">
+    <input type="hidden" name="payload" id="uploadPayload">
+  </form>
+  <script src="app.js"></script>
+</body>
+</html>
