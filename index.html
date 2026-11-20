@@ -62,7 +62,12 @@
             <div id="cameraPlaceholder" class="camera-placeholder"><div class="camera-icon">◎</div><strong>ยังไม่ได้เปิดกล้อง</strong><span>กดปุ่มด้านล่างเพื่อเปิดกล้อง</span></div>
             <img id="photoPreview" class="hidden" alt="ภาพถ่ายสำหรับยืนยันการเข้าร่วม">
           </div>
-          <div class="actions"><button id="startCamera" class="secondary" type="button">เปิดกล้อง</button><button id="takePhoto" class="secondary" type="button" disabled>ถ่ายภาพ</button><button id="retakePhoto" class="secondary hidden" type="button">ถ่ายใหม่</button></div>
+          <div class="actions">
+  <button id="startCamera" class="secondary" type="button">เปิดกล้อง</button>
+  <button id="switchCamera" class="secondary" type="button">สลับกล้องหน้า / หลัง</button>
+  <button id="takePhoto" class="secondary" type="button" disabled>ถ่ายภาพ</button>
+  <button id="retakePhoto" class="secondary hidden" type="button">ถ่ายใหม่</button>
+</div>
           <button id="confirmCheckin" class="primary wide" type="button" disabled>ยืนยัน Check-in <span>→</span></button>
           <p class="fineprint">เมื่อยืนยัน ระบบจะบันทึกเวลาเข้าร่วมและจัดเก็บภาพไว้ใน Google Drive</p>
         </div>
