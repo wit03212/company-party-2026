@@ -60,9 +60,16 @@ function api(payload) {
 }
 window.addEventListener("message", (event) => {
   const frame = $("uploadFrame");
+
+  console.log("Message origin:", event.origin);
+  console.log("Same iframe:", event.source === frame.contentWindow);
+  console.log("Has pending request:", !!pendingRequest);
+
   if (event.source !== frame.contentWindow || !pendingRequest) return;
+
   const data = event.data;
   if (!data || data.requestId !== pendingRequest.requestId) return;
+
   clearTimeout(pendingRequest.timer);
   const request = pendingRequest;
   pendingRequest = null;
