@@ -6,6 +6,7 @@ let staffToken = "";
 let adminToken = "";
 let currentEmployee = null;
 let cameraStream = null;
+let cameraFacingMode = "environment";
 let photoDataUrl = null;
 let summaryData = [];
 let pendingRequest = null;
@@ -160,22 +161,29 @@ function renderEmployee(employee) {
   $("tenure").textContent = get("อายุงาน ป/ด");
 }
 
+
 async function startCamera() {
   try {
     stopCamera();
+
     cameraStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: "user" },
+      video: {
+        facingMode: { ideal: cameraFacingMode }
+      },
       audio: false
     });
+
     $("camera").srcObject = cameraStream;
     $("camera").classList.remove("hidden");
     $("cameraPlaceholder").classList.add("hidden");
     $("photoPreview").classList.add("hidden");
     $("takePhoto").disabled = false;
+
   } catch (error) {
-    toast("เปิดกล้องไม่ได้ กรุณาอนุญาตการใช้กล้องและเปิดเว็บผ่าน HTTPS");
+    toast("เปิดกล้องไม่ได้ กรุณาอนุญาตการใช้กล้อง");
   }
 }
+
 function stopCamera() {
   if (cameraStream) {
     cameraStream.getTracks().forEach(track => track.stop());
@@ -183,6 +191,12 @@ function stopCamera() {
   }
 }
 $("startCamera").addEventListener("click", startCamera);
+$("switchCamera").addEventListener("click", async () => {
+  cameraFacingMode =
+    cameraFacingMode === "environment" ? "user" : "environment";
+
+  await startCamera();
+});
 $("takePhoto").addEventListener("click", () => {
   const video = $("camera");
   const canvas = $("photoCanvas");
