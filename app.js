@@ -37,44 +37,60 @@ function showLogin() {
   adminToken = "";
   stopCamera();
 }
-function api(payload) {
-  return new Promise((resolve, reject) => {
-    if (!API_URL.startsWith("https://script.google.com/")) {
-      reject(new Error("กรุณาตรวจสอบ Apps Script URL ใน app.js"));
-      return;
+
+async function api(payload) {
+  if (pendingRequest) {
+    throw new Error("กำลังติดต่อระบบอยู่ กรุณารอสักครู่");
+  }
+
+  const requestId = crypto.randomUUID
+    ? crypto.randomUUID()
+    : `${Date.now()}_${Math.random()}`;
+
+  const controller = new AbortController();
+  pendingRequest = { requestId };
+
+  const timer = setTimeout(() => controller.abort(), 30000);
+
+  try {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        ...payload,
+        requestId
+      }),
+      signal: controller.signal
+    });
+
+    const text = await response.text();
+
+    let result;
+    try {
+      result = JSON.parse(text);
+    } catch (_) {
+      throw new Error("ระบบตอบกลับไม่ถูกต้อง กรุณาตรวจสอบ Apps Script และ Cloudflare Worker");
     }
-    if (pendingRequest) {
-      reject(new Error("กำลังติดต่อระบบอยู่ กรุณารอสักครู่"));
-      return;
+
+    if (!response.ok) {
+      throw new Error(result.message || `เกิดข้อผิดพลาด HTTP ${response.status}`);
     }
-    const requestId = (crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}_${Math.random()}`);
-    const timer = setTimeout(() => {
-      pendingRequest = null;
-      reject(new Error("หมดเวลารอการตอบกลับจากระบบ กรุณาลองใหม่"));
-    }, 30000);
-    pendingRequest = { requestId, resolve, reject, timer };
-    $("uploadForm").action = API_URL;
-    $("uploadPayload").value = JSON.stringify({ ...payload, requestId });
-    $("uploadForm").submit();
-  });
+
+    return result;
+
+  } catch (error) {
+    if (error.name === "AbortError") {
+      throw new Error("หมดเวลารอการตอบกลับจากระบบ กรุณาลองใหม่");
+    }
+    throw error;
+
+  } finally {
+    clearTimeout(timer);
+    pendingRequest = null;
+  }
 }
-window.addEventListener("message", (event) => {
-  const frame = $("uploadFrame");
-
-  console.log("Message origin:", event.origin);
-  console.log("Same iframe:", event.source === frame.contentWindow);
-  console.log("Has pending request:", !!pendingRequest);
-
-  if (event.source !== frame.contentWindow || !pendingRequest) return;
-
-  const data = event.data;
-  if (!data || data.requestId !== pendingRequest.requestId) return;
-
-  clearTimeout(pendingRequest.timer);
-  const request = pendingRequest;
-  pendingRequest = null;
-  request.resolve(data);
-});
 
 $("loginForm").addEventListener("submit", async (event) => {
   event.preventDefault();
