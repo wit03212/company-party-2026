@@ -1,5 +1,5 @@
 // Company Party 2026 - GitHub Pages frontend
-const API_URL = "https://script.google.com/macros/s/AKfycbwceWPv4jFv6Y-4LRXEdoCPTE1UO7cvgeNCjcG3AKLpJJnfnNJX9oBRd4bn_EFC-sRj/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzprn4svfmkBmUe_5Ts00plQlvSOEEI4IQi-f8SqhxMQy_FPYarLpQYaY-e06knBCs-/exec";
 
 const $ = (id) => document.getElementById(id);
 let staffToken = "";
