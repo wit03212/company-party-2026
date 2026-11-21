@@ -196,9 +196,9 @@ $("confirmCheckin").addEventListener("click", async () => {
       showLogin();
     }
   } finally {
-    button.disabled = true;
-    button.innerHTML = 'ยืนยัน Check-in <span>→</span>';
-  }
+  button.disabled = !currentEmployee;
+  button.innerHTML = 'ยืนยัน Check-in <span>→</span>';
+}
 });
 
 document.querySelectorAll(".nav-btn[data-page]").forEach(button => {
