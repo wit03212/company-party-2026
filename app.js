@@ -136,6 +136,7 @@ $("lookupForm").addEventListener("submit", async (event) => {
     currentEmployee = result.employee;
     renderEmployee(currentEmployee);
     $("employeeCard").classList.remove("hidden");
+    $("confirmCheckin").disabled = false;
     setMessage("lookupMessage", "พบข้อมูลพนักงาน กรุณาตรวจสอบความถูกต้อง", "success");
   } catch (error) {
     setMessage("lookupMessage", error.message, "error");
