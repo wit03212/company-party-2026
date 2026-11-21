@@ -5,17 +5,24 @@ const $ = (id) => document.getElementById(id);
 let staffToken = "";
 let adminToken = "";
 let currentEmployee = null;
-let cameraStream = null;
-let cameraFacingMode = "environment";
-let photoDataUrl = null;
 let summaryData = [];
 let pendingRequest = null;
 
+let toastTimer = null;
+
 function toast(message) {
   const el = $("toast");
+
+  clearTimeout(toastTimer);
+
   el.textContent = message;
   el.classList.add("show");
-  setTimeout(() => el.classList.remove("show"), 3200);
+
+  toastTimer = setTimeout(() => {
+    el.classList.remove("show");
+    el.textContent = "";
+    toastTimer = null;
+  }, 3200);
 }
 function setMessage(id, message, type = "") {
   const el = $(id);
@@ -34,9 +41,7 @@ function showLogin() {
   $("summaryPage").classList.remove("active");
   $("employeeCard").classList.add("hidden");
   currentEmployee = null;
-  photoDataUrl = null;
   adminToken = "";
-  stopCamera();
 }
 
 async function api(payload) {
@@ -113,15 +118,8 @@ $("loginForm").addEventListener("submit", async (event) => {
 
 $("lookupForm").addEventListener("submit", async (event) => {
   event.preventDefault();
-  stopCamera();
-  photoDataUrl = null;
   currentEmployee = null;
   $("employeeCard").classList.add("hidden");
-  $("photoPreview").classList.add("hidden");
-  $("retakePhoto").classList.add("hidden");
-  $("camera").classList.add("hidden");
-  $("cameraPlaceholder").classList.remove("hidden");
-  $("takePhoto").disabled = true;
   $("confirmCheckin").disabled = true;
   setMessage("lookupMessage", "กำลังค้นหาข้อมูล...");
   try {
@@ -162,88 +160,36 @@ function renderEmployee(employee) {
 }
 
 
-async function startCamera() {
-  try {
-    stopCamera();
-
-    cameraStream = await navigator.mediaDevices.getUserMedia({
-      video: {
-        facingMode: { ideal: cameraFacingMode }
-      },
-      audio: false
-    });
-
-    $("camera").srcObject = cameraStream;
-    $("camera").classList.remove("hidden");
-    $("cameraPlaceholder").classList.add("hidden");
-    $("photoPreview").classList.add("hidden");
-    $("takePhoto").disabled = false;
-
-  } catch (error) {
-    toast("เปิดกล้องไม่ได้ กรุณาอนุญาตการใช้กล้อง");
-  }
-}
-
-function stopCamera() {
-  if (cameraStream) {
-    cameraStream.getTracks().forEach(track => track.stop());
-    cameraStream = null;
-  }
-}
-$("startCamera").addEventListener("click", startCamera);
-$("switchCamera").addEventListener("click", async () => {
-  cameraFacingMode =
-    cameraFacingMode === "environment" ? "user" : "environment";
-
-  await startCamera();
-});
-$("takePhoto").addEventListener("click", () => {
-  const video = $("camera");
-  const canvas = $("photoCanvas");
-  if (!video.videoWidth) return toast("กล้องยังไม่พร้อม");
-  const scale = Math.min(1, 1280 / video.videoWidth);
-  canvas.width = Math.round(video.videoWidth * scale);
-  canvas.height = Math.round(video.videoHeight * scale);
-  canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
-  photoDataUrl = canvas.toDataURL("image/jpeg", 0.78);
-  $("photoPreview").src = photoDataUrl;
-  $("photoPreview").classList.remove("hidden");
-  $("camera").classList.add("hidden");
-  $("takePhoto").disabled = true;
-  $("retakePhoto").classList.remove("hidden");
-  $("confirmCheckin").disabled = false;
-  stopCamera();
-});
-$("retakePhoto").addEventListener("click", () => {
-  photoDataUrl = null;
-  $("retakePhoto").classList.add("hidden");
-  $("confirmCheckin").disabled = true;
-  startCamera();
-});
-
 $("confirmCheckin").addEventListener("click", async () => {
-  if (!currentEmployee || !photoDataUrl) return toast("กรุณาค้นหาพนักงานและถ่ายภาพก่อน");
+  if (!currentEmployee) {
+    return toast("กรุณาค้นหาพนักงานก่อน");
+  }
+
   const button = $("confirmCheckin");
   button.disabled = true;
   button.textContent = "กำลังบันทึก...";
+
   try {
     const result = await api({
       action: "checkin",
       token: staffToken,
-      code: String(currentEmployee["รหัส"] || "").trim(),
-      photoDataUrl
+      code: String(currentEmployee["รหัส"] || "").trim()
     });
-    if (!result.success) throw new Error(result.message || "บันทึกไม่สำเร็จ");
+
+    if (!result.success) {
+      throw new Error(result.message || "บันทึกไม่สำเร็จ");
+    }
+
     toast("บันทึก Check-in เรียบร้อยแล้ว");
     setMessage("lookupMessage", "บันทึกการเข้าร่วมงานสำเร็จ", "success");
+
     $("employeeCard").classList.add("hidden");
     $("employeeId").value = "";
     currentEmployee = null;
-    photoDataUrl = null;
-    $("photoPreview").classList.add("hidden");
-    $("cameraPlaceholder").classList.remove("hidden");
+
   } catch (error) {
     toast(error.message);
+
     if (/Session หมดอายุ/.test(error.message)) {
       staffToken = "";
       showLogin();
@@ -251,7 +197,6 @@ $("confirmCheckin").addEventListener("click", async () => {
   } finally {
     button.disabled = true;
     button.innerHTML = 'ยืนยัน Check-in <span>→</span>';
-    if (currentEmployee && photoDataUrl) button.disabled = false;
   }
 });
 
@@ -377,5 +322,4 @@ $("logoutButton").addEventListener("click", async () => {
   showLogin();
   toast("ออกจากระบบแล้ว");
 });
-window.addEventListener("beforeunload", stopCamera);
 showLogin();
