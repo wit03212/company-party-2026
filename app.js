@@ -158,6 +158,7 @@ function renderEmployee(employee) {
   $("branch").textContent = get("ชื่อสาขา");
   $("startDate").textContent = get("วันเริ่มงาน");
   $("tenure").textContent = get("อายุงาน ป/ด");
+  $("tableNumber").textContent = get("เบอร์โต๊ะ");
 }
 
 
